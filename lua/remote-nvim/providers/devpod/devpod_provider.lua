@@ -154,6 +154,28 @@ function DevpodProvider:_launch_devpod_workspace()
   end
 end
 
+function table_to_string(tbl)
+    local result = "{"
+    for k, v in pairs(tbl) do
+        if type(k) == "string" then
+            result = result .. '["' .. k .. '"]='
+        else
+            result = result .. "[" .. k .. "]="
+        end
+
+        if type(v) == "table" then
+            result = result .. table_to_string(v) -- Recursive call for nested tables
+        elseif type(v) == "string" then
+            result = result .. '"' .. v .. '"'
+        else
+            result = result .. tostring(v)
+        end
+
+        result = result .. ","
+    end
+    return result:sub(1, -2) .. "}" -- Remove last comma and close the table
+end
+
 function DevpodProvider:_handle_provider_setup()
   if self._devpod_provider then
     self.local_provider:run_command(
@@ -161,7 +183,7 @@ function DevpodProvider:_handle_provider_setup()
       ("Checking if the %s provider is present"):format(self._devpod_provider)
     )
     local stdout = self.local_provider.executor:job_stdout()
-    vim.notify(stdout)
+    vim.notify(table_to_string(stdout))
     local provider_list_output = vim.json.decode(vim.tbl_isempty(stdout) and "{}" or table.concat(stdout, "\n"))
 
     -- If the provider does not exist, let's create it
