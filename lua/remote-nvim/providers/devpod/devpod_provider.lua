@@ -161,6 +161,7 @@ function DevpodProvider:_handle_provider_setup()
       ("Checking if the %s provider is present"):format(self._devpod_provider)
     )
     local stdout = self.local_provider.executor:job_stdout()
+    vim.notify(stdout)
     local provider_list_output = vim.json.decode(vim.tbl_isempty(stdout) and "{}" or table.concat(stdout, "\n"))
 
     -- If the provider does not exist, let's create it
